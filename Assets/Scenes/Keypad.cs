@@ -12,7 +12,7 @@ namespace NavKeypad
         [SerializeField] private UnityEvent onAccessGranted;
         [SerializeField] private UnityEvent onAccessDenied;
         [Header("Combination Code (9 Numbers Max)")]
-        [SerializeField] private int keypadCombo = 12345;
+        [SerializeField] private int keypadCombo = 1234;
 
         public UnityEvent OnAccessGranted => onAccessGranted;
         public UnityEvent OnAccessDenied => onAccessDenied;
@@ -37,7 +37,7 @@ namespace NavKeypad
         [SerializeField] private Renderer panelMesh;
         [SerializeField] private TMP_Text keypadDisplayText;
         [SerializeField] private AudioSource audioSource;
-
+        [SerializeField] private GameObject canvas01; // Reference to the painting "Canvas_01"
 
         private string currentInput;
         private bool displayingResult = false;
@@ -49,8 +49,7 @@ namespace NavKeypad
             panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
         }
 
-
-        //Gets value from pressedbutton
+        // Gets value from pressed button
         public void AddInput(string input)
         {
             audioSource.PlayOneShot(buttonClickedSfx);
@@ -61,7 +60,7 @@ namespace NavKeypad
                     CheckCombo();
                     break;
                 default:
-                    if (currentInput != null && currentInput.Length == 9) // 9 max passcode size 
+                    if (currentInput != null && currentInput.Length == 9) // 9 max passcode size
                     {
                         return;
                     }
@@ -69,8 +68,8 @@ namespace NavKeypad
                     keypadDisplayText.text = currentInput;
                     break;
             }
-
         }
+
         public void CheckCombo()
         {
             if (int.TryParse(currentInput, out var currentKombo))
@@ -85,10 +84,9 @@ namespace NavKeypad
             {
                 Debug.LogWarning("Couldn't process input for some reason..");
             }
-
         }
 
-        //mainly for animations 
+        // Mainly for animations
         private IEnumerator DisplayResultRoutine(bool granted)
         {
             displayingResult = true;
@@ -101,7 +99,6 @@ namespace NavKeypad
             if (granted) yield break;
             ClearInput();
             panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
-
         }
 
         private void AccessDenied()
@@ -125,7 +122,19 @@ namespace NavKeypad
             onAccessGranted?.Invoke();
             panelMesh.material.SetVector("_EmissionColor", screenGrantedColor * screenIntensity);
             audioSource.PlayOneShot(accessGrantedSfx);
+            MoveCanvas();
         }
 
+        private void MoveCanvas()
+        {
+            if (canvas01 != null)
+            {
+                canvas01.transform.position += Vector3.left;
+            }
+            else
+            {
+                Debug.LogWarning("Canvas_01 not assigned.");
+            }
+        }
     }
 }
